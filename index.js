@@ -76,6 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
+  // HÀM ĐÃ SỬA: TỰ ĐỘNG CÁCH 1 DÒNG GIỮA CÁC ĐOẠN
   function replaceText(inputText, pairs, useMatchCase) {
     if (!inputText) return '';
     let text = inputText;
@@ -84,35 +85,36 @@ document.addEventListener('DOMContentLoaded', () => {
       .filter(p => p.find && p.find.trim())
       .map(p => ({ find: p.find.trim(), replace: p.replace || '' }));
 
-    if (rules.length === 0) return text;
-
-    for (const rule of rules) {
-      try {
-        const pattern = escapeRegExp(rule.find);
-        const flags = 'gu' + (useMatchCase ? '' : 'i');
-        const regex = new RegExp(pattern, flags);
-        text = text.replace(regex, (match) => {
-          let repl = rule.replace;
-          if (!useMatchCase) {
-            if (match === match.toUpperCase()) repl = repl.toUpperCase();
-            else if (match === match.toLowerCase()) repl = repl.toLowerCase();
-            else if (match[0] === match[0].toUpperCase()) {
-              repl = repl.charAt(0).toUpperCase() + repl.slice(1);
+    if (rules.length > 0) {
+      for (const rule of rules) {
+        try {
+          const pattern = escapeRegExp(rule.find);
+          const flags = 'gu' + (useMatchCase ? '' : 'i');
+          const regex = new RegExp(pattern, flags);
+          text = text.replace(regex, (match) => {
+            let repl = rule.replace;
+            if (!useMatchCase) {
+              if (match === match.toUpperCase()) repl = repl.toUpperCase();
+              else if (match === match.toLowerCase()) repl = repl.toLowerCase();
+              else if (match[0] === match[0].toUpperCase()) {
+                repl = repl.charAt(0).toUpperCase() + repl.slice(1);
+              }
             }
-          }
-          return repl;
-        });
-      } catch (e) {
-        console.warn('Invalid pattern:', rule.find);
+            return repl;
+          });
+        } catch (e) {
+          console.warn('Invalid pattern:', rule.find);
+        }
       }
     }
 
-    return text
-      .replace(/\s+/g, ' ')
-      .replace(/\n\s+/g, '\n')
-      .replace(/\s+\n/g, '\n')
-      .replace(/\n{3,}/g, '\n\n')
-      .trim();
+    // CHUẨN HÓA ĐOẠN: MỖI ĐOẠN CÁCH NHAU 1 DÒNG TRỐNG
+    const paragraphs = text
+      .split(/\n/)                    // Tách theo dòng
+      .map(line => line.trim())       // Xóa khoảng trắng đầu/cuối
+      .filter(line => line.length > 0); // Loại bỏ dòng trống
+
+    return paragraphs.join('\n\n').trim();
   }
 
   function exportSettings() {
@@ -123,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         settings.modes[mode].pairs.forEach(p => {
           if (p.find) {
             const findEsc = p.find.replace(/"/g, '""');
-            const replaceEsc = (p.replace || '').replace(/"/g, '""');
+            const replaceEsc = (p.replace || '').replace(/""/g, '""');
             csv += `"${findEsc}","${replaceEsc}","${mode}"\n`;
           }
         });
