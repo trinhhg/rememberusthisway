@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded');
 
-  // Translations
   const translations = {
     vn: {
       appTitle: 'Tiện Ích Của Trịnh Hg',
@@ -73,22 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const LOCAL_STORAGE_KEY = 'local_settings_csv';
   const INPUT_STORAGE_KEY = 'input_state';
 
-  // === ESCAPE REGEXP ===
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   }
 
-  // === REPLACE TEXT - 100% NHƯ JOYDEEPDEB ===
   function replaceText(inputText, pairs, useMatchCase) {
     if (!inputText) return '';
     let text = inputText;
 
     const rules = pairs
       .filter(p => p.find && p.find.trim())
-      .map(p => ({
-        find: p.find.trim(),
-        replace: p.replace || ''
-      }));
+      .map(p => ({ find: p.find.trim(), replace: p.replace || '' }));
 
     if (rules.length === 0) return text;
 
@@ -97,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const pattern = escapeRegExp(rule.find);
         const flags = 'gu' + (useMatchCase ? '' : 'i');
         const regex = new RegExp(pattern, flags);
-
         text = text.replace(regex, (match) => {
           let repl = rule.replace;
           if (!useMatchCase) {
@@ -114,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Chuẩn hóa khoảng trắng
     return text
       .replace(/\s+/g, ' ')
       .replace(/\n\s+/g, '\n')
@@ -123,15 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
       .trim();
   }
 
-  // === CSV EXPORT ===
   function exportSettings() {
     try {
       const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
       let csv = '\uFEFFfind,replace,mode\n';
-
       Object.keys(settings.modes).forEach(mode => {
-        const data = settings.modes[mode];
-        data.pairs.forEach(p => {
+        settings.modes[mode].pairs.forEach(p => {
           if (p.find) {
             const findEsc = p.find.replace(/"/g, '""');
             const replaceEsc = (p.replace || '').replace(/"/g, '""');
@@ -139,21 +128,19 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
       });
-
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'settings.csv';
       a.click();
-      URL.revokeObjectObjectURL(url);
+      URL.revokeObjectURL(url);
       showNotification(translations[currentLang].settingsExported, 'success');
     } catch (err) {
       showNotification(translations[currentLang].importError, 'error');
     }
   }
 
-  // === CSV IMPORT ===
   function importSettings() {
     const input = document.createElement('input');
     input.type = 'file';
@@ -161,28 +148,23 @@ document.addEventListener('DOMContentLoaded', () => {
     input.onchange = (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = (ev) => {
         try {
           const text = ev.target.result.replace(/^\uFEFF/, '');
           const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
           if (!lines[0].includes('find,replace,mode')) throw new Error('Invalid CSV');
-
           const newSettings = { modes: {} };
           for (let i = 1; i < lines.length; i++) {
             const cols = lines[i].match(/("([^"]*)")|([^,]+)/g);
             if (!cols || cols.length < 3) continue;
-
             let find = cols[0].replace(/^"|"$/g, '').replace(/""/g, '"');
             let replace = cols[1].replace(/^"|"$/g, '').replace(/""/g, '"');
             let mode = cols[2].replace(/^"|"$/g, '').replace(/""/g, '"');
-
             if (!find) continue;
             if (!newSettings.modes[mode]) newSettings.modes[mode] = { pairs: [], matchCase: false };
             newSettings.modes[mode].pairs.push({ find, replace });
           }
-
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(newSettings));
           loadModes();
           showNotification(translations[currentLang].settingsImported, 'success');
@@ -195,7 +177,6 @@ document.addEventListener('DOMContentLoaded', () => {
     input.click();
   }
 
-  // === LOAD/SAVE MODES ===
   function loadModes() {
     const select = document.getElementById('mode-select');
     const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: { default: { pairs: [], matchCase: false } } };
@@ -266,6 +247,304 @@ document.addEventListener('DOMContentLoaded', () => {
     item.appendChild(replaceInp);
     item.appendChild(removeBtn);
     list.insertBefore(item, list.firstChild);
+
+    findInp.oninput = replaceInp.oninput = saveInputState;
+  }
+
+  function updateSplitModeUI(mode) {
+    currentSplitMode = mode;
+    const container = document.querySelector('.split-container');
+    const sections = Array.from({ length: 8 }, (_, i) => document.getElementById(`output${i + 3}-section`));
+    const buttons = document.querySelectorAll('.split-mode-button');
+
+    container.classList.remove(...Array.from({ length: 9 }, (_, i) => `split-${i + 2}`));
+    container.classList.add(`split-${mode}`);
+
+    buttons.forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.splitMode) === mode));
+    sections.forEach((sec, i) => { if (sec) sec.style.display = mode > i + 2 ? 'block' : 'none'; });
+
+    ['split-input-text', ...Array.from({ length: 10 }, (_, i) => `output${i + 1}-text`)].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = '';
+        updateWordCount(id, id === 'split-input-text' ? 'split-input-word-count' : `${id}-word-count`);
+      }
+    });
+    saveInputState();
+  }
+
+  function attachButtonEvents() {
+    // Match Case
+    document.getElementById('match-case')?.addEventListener('click', () => {
+      matchCaseEnabled = !matchCaseEnabled;
+      updateButtonStates();
+      saveSettings();
+    });
+
+    // Mode Select
+    document.getElementById('mode-select')?.addEventListener('change', (e) => {
+      currentMode = e.target.value;
+      loadSettings();
+      showNotification(translations[currentLang].switchedMode.replace('{mode}', currentMode), 'success');
+      updateModeButtons();
+    });
+
+    // Add Mode
+    document.getElementById('add-mode')?.addEventListener('click', () => {
+      const newMode = prompt(translations[currentLang].newModePrompt);
+      if (!newMode || newMode === 'default' || newMode.includes('mode_') || newMode.trim() === '') {
+        showNotification(translations[currentLang].invalidModeName, 'error');
+        return;
+      }
+      const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
+      if (settings.modes[newMode]) {
+        showNotification(translations[currentLang].invalidModeName, 'error');
+        return;
+      }
+      settings.modes[newMode] = { pairs: [], matchCase: false };
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+      currentMode = newMode;
+      loadModes();
+      showNotification(translations[currentLang].modeCreated.replace('{mode}', newMode), 'success');
+    });
+
+    // Copy Mode
+    document.getElementById('copy-mode')?.addEventListener('click', () => {
+      const newMode = prompt(translations[currentLang].newModePrompt);
+      if (!newMode || newMode === 'default' || newMode.includes('mode_') || newMode.trim() === '') {
+        showNotification(translations[currentLang].invalidModeName, 'error');
+        return;
+      }
+      const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
+      if (settings.modes[newMode]) {
+        showNotification(translations[currentLang].invalidModeName, 'error');
+        return;
+      }
+      const currentData = settings.modes[currentMode] || { pairs: [], matchCase: false };
+      settings.modes[newMode] = JSON.parse(JSON.stringify(currentData));
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+      currentMode = newMode;
+      loadModes();
+      showNotification(translations[currentLang].modeCreated.replace('{mode}', newMode), 'success');
+    });
+
+    // Delete Mode
+    document.getElementById('delete-mode')?.addEventListener('click', () => {
+      if (currentMode === 'default') {
+        showNotification('Không thể xóa chế độ mặc định!', 'error');
+        return;
+      }
+      if (confirm(`Xóa chế độ "${currentMode}"?`)) {
+        const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
+        delete settings.modes[currentMode];
+        localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+        currentMode = 'default';
+        loadModes();
+        showNotification(translations[currentLang].modeDeleted.replace('{mode}', currentMode), 'success');
+      }
+    });
+
+    // Rename Mode
+    document.getElementById('rename-mode')?.addEventListener('click', () => {
+      if (currentMode === 'default') {
+        showNotification('Không thể đổi tên chế độ mặc định!', 'error');
+        return;
+      }
+      const newName = prompt(translations[currentLang].renamePrompt, currentMode);
+      if (!newName || newName === 'default' || newName.includes('mode_') || newName.trim() === '' || newName === currentMode) {
+        showNotification(translations[currentLang].renameError, 'error');
+        return;
+      }
+      const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
+      if (settings.modes[newName]) {
+        showNotification('Tên chế độ đã tồn tại!', 'error');
+        return;
+      }
+      settings.modes[newName] = settings.modes[currentMode];
+      delete settings.modes[currentMode];
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(settings));
+      currentMode = newName;
+      loadModes();
+      showNotification(translations[currentLang].renameSuccess.replace('{mode}', newName), 'success');
+    });
+
+    // Add Pair
+    document.getElementById('add-pair')?.addEventListener('click', () => addPair());
+
+    // Save Settings
+    document.getElementById('save-settings')?.addEventListener('click', saveSettings);
+
+    // Replace Button
+    document.getElementById('replace-button')?.addEventListener('click', () => {
+      const input = document.getElementById('input-text');
+      if (!input?.value) return showNotification(translations[currentLang].noTextToReplace, 'error');
+      const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
+      const pairs = settings.modes[currentMode]?.pairs || [];
+      if (pairs.length === 0) return showNotification(translations[currentLang].noPairsConfigured, 'error');
+      const output = replaceText(input.value, pairs, matchCaseEnabled);
+      const outputEl = document.getElementById('output-text');
+      outputEl.value = output;
+      input.value = '';
+      updateWordCount('input-text', 'input-word-count');
+      updateWordCount('output-text', 'output-word-count');
+      showNotification(translations[currentLang].textReplaced, 'success');
+      saveInputState();
+    });
+
+    // Copy Button
+    document.getElementById('copy-button')?.addEventListener('click', () => {
+      const el = document.getElementById('output-text');
+      if (!el?.value) return showNotification(translations[currentLang].noTextToCopy, 'error');
+      navigator.clipboard.writeText(el.value).then(() => {
+        showNotification(translations[currentLang].textCopied, 'success');
+      }).catch(() => showNotification(translations[currentLang].failedToCopy, 'error'));
+    });
+
+    // Split Button
+    document.getElementById('split-button')?.addEventListener('click', () => {
+      const input = document.getElementById('split-input-text');
+      if (!input?.value) return showNotification(translations[currentLang].noTextToSplit, 'error');
+      const lines = input.value.split('\n');
+      const firstMatch = lines[0].match(/^[Cc]hương\s+(\d+)(?::\s*(.*))?$/m);
+      let chapterNum = 1, chapterTitle = '', startIdx = 0;
+      if (firstMatch) {
+        chapterNum = parseInt(firstMatch[1]);
+        chapterTitle = firstMatch[2] ? `: ${firstMatch[2]}` : '';
+        startIdx = 1;
+      }
+      const content = lines.slice(startIdx).join('\n');
+      const paragraphs = content.split('\n').filter(p => p.trim());
+      const totalWords = countWords(content);
+      const wordsPerPart = Math.floor(totalWords / currentSplitMode);
+      let parts = [], wordCount = 0, start = 0;
+      for (let i = 0; i < paragraphs.length; i++) {
+        wordCount += countWords(paragraphs[i]);
+        if (parts.length < currentSplitMode - 1 && wordCount >= wordsPerPart * (parts.length + 1)) {
+          parts.push(paragraphs.slice(start, i + 1).join('\n\n'));
+          start = i + 1;
+        }
+      }
+      parts.push(paragraphs.slice(start).join('\n\n'));
+      Array.from({ length: currentSplitMode }, (_, i) => i + 1).forEach(i => {
+        const el = document.getElementById(`output${i}-text`);
+        if (el) {
+          el.value = `Chương ${chapterNum}.${i}${chapterTitle}\n\n${parts[i - 1] || ''}`;
+          updateWordCount(`output${i}-text`, `output${i}-word-count`);
+        }
+      });
+      input.value = '';
+      updateWordCount('split-input-text', 'split-input-word-count');
+      showNotification(translations[currentLang].splitSuccess, 'success');
+      saveInputState();
+    });
+
+    // Copy Buttons 1-10
+    for (let i = 1; i <= 10; i++) {
+      document.getElementById(`copy-button${i}`)?.addEventListener('click', () => {
+        const el = document.getElementById(`output${i}-text`);
+        if (!el?.value) return showNotification(translations[currentLang].noTextToCopy, 'error');
+        navigator.clipboard.writeText(el.value).then(() => showNotification(translations[currentLang].textCopied, 'success'));
+      });
+    }
+
+    // Split Mode Buttons
+    document.querySelectorAll('.split-mode-button').forEach(btn => {
+      btn.addEventListener('click', () => updateSplitModeUI(parseInt(btn.dataset.splitMode)));
+    });
+
+    // Export / Import
+    document.getElementById('export-settings').onclick = exportSettings;
+    document.getElementById('import-settings').onclick = importSettings;
+
+    // Tab Buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === btn.dataset.tab));
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    // Input listeners
+    ['input-text', 'split-input-text'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => {
+        updateWordCount(id, id === 'input-text' ? 'input-word-count' : 'split-input-word-count');
+        saveInputState();
+      });
+    });
+  }
+
+  function updateButtonStates() {
+    const btn = document.getElementById('match-case');
+    if (btn) {
+      btn.textContent = matchCaseEnabled ? translations.vn.matchCaseOn : translations.vn.matchCaseOff;
+      btn.classList.toggle('active', matchCaseEnabled);
+    }
+  }
+
+  function updateModeButtons() {
+    const rename = document.getElementById('rename-mode');
+    const del = document.getElementById('delete-mode');
+    if (currentMode !== 'default') {
+      rename.style.display = del.style.display = 'inline-block';
+    } else {
+      rename.style.display = del.style.display = 'none';
+    }
+  }
+
+  function showNotification(msg, type = 'success') {
+    const container = document.getElementById('notification-container');
+    const n = document.createElement('div');
+    n.className = `notification ${type}`;
+    n.textContent = msg;
+    container.appendChild(n);
+    setTimeout(() => n.remove(), 3000);
+  }
+
+  function countWords(text) {
+    return text.trim() ? text.split(/\s+/).filter(w => w).length : 0;
+  }
+
+  function updateWordCount(id, counterId) {
+    const el = document.getElementById(id);
+    const c = document.getElementById(counterId);
+    if (el && c) c.textContent = translations.vn.wordCount.replace('{count}', countWords(el.value));
+  }
+
+  function saveInputState() {
+    const state = {
+      inputText: document.getElementById('input-text')?.value || '',
+      splitInputText: document.getElementById('split-input-text')?.value || '',
+      punctuationItems: Array.from(document.querySelectorAll('.punctuation-item')).map(item => ({
+        find: item.querySelector('.find')?.value || '',
+        replace: item.querySelector('.replace')?.value || ''
+      }))
+    };
+    localStorage.setItem(INPUT_STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function restoreInputState() {
+    const state = JSON.parse(localStorage.getItem(INPUT_STORAGE_KEY));
+    if (!state) return;
+    if (state.inputText) document.getElementById('input-text').value = state.inputText;
+    if (state.splitInputText) document.getElementById('split-input-text').value = state.splitInputText;
+    if (state.punctuationItems) {
+      const list = document.getElementById('punctuation-list');
+      list.innerHTML = '';
+      state.punctuationItems.reverse().forEach(p => addPair(p.find, p.replace));
+    }
+    updateWordCount('input-text', 'input-word-count');
+    updateWordCount('split-input-text', 'split-input-word-count');
+  }
+
+  function init() {
+    loadModes();
+    updateSplitModeUI(2);
+    attachButtonEvents();
+    restoreInputState();
+  }
+
+  init();
+});
 
     findInp.oninput = replaceInp.oninput = saveInputState;
   }
