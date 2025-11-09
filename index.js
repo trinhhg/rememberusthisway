@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM fully loaded');
 
-  // Translations (giữ nguyên)
-  const translations = { /* ... giữ nguyên toàn bộ translations.vn ... */ 
+  // Translations
+  const translations = {
     vn: {
       appTitle: 'Tiện Ích Của Trịnh Hg',
       contactText1: '- Gia hạn tài khoản: ',
@@ -83,93 +83,70 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!inputText) return '';
     let text = inputText;
 
-    // Tạo danh sách regex + replacement
     const rules = pairs
       .filter(p => p.find && p.find.trim())
       .map(p => ({
         find: p.find.trim(),
-        replace: p.replace || '',
-        isRegex: p.isRegex || false
+        replace: p.replace || ''
       }));
 
     if (rules.length === 0) return text;
 
-    // Xử lý từng rule theo thứ tự
     for (const rule of rules) {
       try {
-        let pattern;
-        let flags = 'g';
-
-        if (rule.isRegex) {
-          pattern = rule.find;
-          flags += useMatchCase ? '' : 'i';
-          flags += 'u'; // Unicode support
-        } else {
-          pattern = escapeRegExp(rule.find);
-          flags += useMatchCase ? '' : 'i';
-          flags += 'u';
-        }
-
+        const pattern = escapeRegExp(rule.find);
+        const flags = 'gu' + (useMatchCase ? '' : 'i');
         const regex = new RegExp(pattern, flags);
 
         text = text.replace(regex, (match) => {
           let repl = rule.replace;
-
-          // Giữ case nếu không match case
           if (!useMatchCase) {
-            if (match === match.toUpperCase()) {
-              repl = repl.toUpperCase();
-            } else if (match === match.toLowerCase()) {
-              repl = repl.toLowerCase();
-            } else if (match[0] === match[0].toUpperCase()) {
+            if (match === match.toUpperCase()) repl = repl.toUpperCase();
+            else if (match === match.toLowerCase()) repl = repl.toLowerCase();
+            else if (match[0] === match[0].toUpperCase()) {
               repl = repl.charAt(0).toUpperCase() + repl.slice(1);
             }
           }
-
           return repl;
         });
       } catch (e) {
-        console.warn('Invalid regex:', rule.find, e);
+        console.warn('Invalid pattern:', rule.find);
       }
     }
 
-    // Post-process: Chuẩn hóa khoảng trắng, xuống dòng
-    text = text
-      .replace(/\s+/g, ' ')           // Gộp space
-      .replace(/\n\s+/g, '\n')        // Xóa space đầu dòng
-      .replace(/\s+\n/g, '\n')        // Xóa space cuối dòng
-      .replace(/\n{3,}/g, '\n\n')     // Tối đa 2 dòng trống
+    // Chuẩn hóa khoảng trắng
+    return text
+      .replace(/\s+/g, ' ')
+      .replace(/\n\s+/g, '\n')
+      .replace(/\s+\n/g, '\n')
+      .replace(/\n{3,}/g, '\n\n')
       .trim();
-
-    return text;
   }
 
   // === CSV EXPORT ===
   function exportSettings() {
     try {
       const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
-      let csv = 'find,replace,mode\n';
+      let csv = '\uFEFFfind,replace,mode\n';
 
       Object.keys(settings.modes).forEach(mode => {
-        const modeData = settings.modes[mode];
-        if (modeData.pairs && modeData.pairs.length > 0) {
-          modeData.pairs.forEach(pair => {
-            if (pair.find) {
-              const findEsc = pair.find.replace(/"/g, '""');
-              const replaceEsc = (pair.replace || '').replace(/"/g, '""');
-              csv += `"${findEsc}","${replaceEsc}","${mode}"\n`;
-            }
-          });
-        }
+        const data = settings.modes[mode];
+        data.pairs.forEach(p => {
+          if (p.find) {
+            const findEsc = p.find.replace(/"/g, '""');
+            const replaceEsc = (p.replace || '').replace(/"/g, '""');
+            csv += `"${findEsc}","${replaceEsc}","${mode}"\n`;
+          }
+        });
       });
 
-      const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'settings.csv';
       a.click();
-      URL.revokeObjectURL(url);
+      URL.revokeObjectObjectURL(url);
       showNotification(translations[currentLang].settingsExported, 'success');
     } catch (err) {
       showNotification(translations[currentLang].importError, 'error');
@@ -188,11 +165,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const reader = new FileReader();
       reader.onload = (ev) => {
         try {
-          const text = ev.target.result;
+          const text = ev.target.result.replace(/^\uFEFF/, '');
           const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-          if (lines.length < 1 || !lines[0].includes('find,replace,mode')) {
-            throw new Error('CSV không đúng định dạng');
-          }
+          if (!lines[0].includes('find,replace,mode')) throw new Error('Invalid CSV');
 
           const newSettings = { modes: {} };
           for (let i = 1; i < lines.length; i++) {
@@ -204,9 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             let mode = cols[2].replace(/^"|"$/g, '').replace(/""/g, '"');
 
             if (!find) continue;
-            if (!newSettings.modes[mode]) {
-              newSettings.modes[mode] = { pairs: [], matchCase: false };
-            }
+            if (!newSettings.modes[mode]) newSettings.modes[mode] = { pairs: [], matchCase: false };
             newSettings.modes[mode].pairs.push({ find, replace });
           }
 
@@ -214,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
           loadModes();
           showNotification(translations[currentLang].settingsImported, 'success');
         } catch (err) {
-          console.error(err);
           showNotification(translations[currentLang].importError, 'error');
         }
       };
@@ -228,7 +200,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const select = document.getElementById('mode-select');
     const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: { default: { pairs: [], matchCase: false } } };
     const modes = Object.keys(settings.modes).sort();
-
     select.innerHTML = '';
     modes.forEach(m => {
       const opt = document.createElement('option');
@@ -246,14 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeData = settings.modes[currentMode] || { pairs: [], matchCase: false };
     const list = document.getElementById('punctuation-list');
     list.innerHTML = '';
-
-    if (modeData.pairs.length === 0) {
-      addPair('', '');
-    } else {
-      modeData.pairs.forEach(p => addPair(p.find, p.replace));
-    }
-
-    matchCaseEnabled = modeData.matchCase || false;
+    if (modeData.pairs.length === 0) addPair('', '');
+    else modeData.pairs.forEach(p => addPair(p.find, p.replace));
+    matchCaseEnabled = modeData.matchCase;
     updateButtonStates();
   }
 
@@ -304,8 +270,164 @@ document.addEventListener('DOMContentLoaded', () => {
     findInp.oninput = replaceInp.oninput = saveInputState;
   }
 
-  // === UI & EVENTS (giữ nguyên, chỉ thay export/import) ===
-  function updateLanguage(lang) { /* giữ nguyên */ }
+  // === SPLIT MODE UI (giữ nguyên) ===
+  function updateSplitModeUI(mode) {
+    currentSplitMode = mode;
+    const container = document.querySelector('.split-container');
+    const sections = Array.from({ length: 8 }, (_, i) => document.getElementById(`output${i + 3}-section`));
+    const buttons = document.querySelectorAll('.split-mode-button');
+
+    container.classList.remove(...Array.from({ length: 9 }, (_, i) => `split-${i + 2}`));
+    container.classList.add(`split-${mode}`);
+
+    buttons.forEach(btn => btn.classList.toggle('active', parseInt(btn.dataset.splitMode) === mode));
+    sections.forEach((sec, i) => { if (sec) sec.style.display = mode > i + 2 ? 'block' : 'none'; });
+
+    ['split-input-text', ...Array.from({ length: 10 }, (_, i) => `output${i + 1}-text`)].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) {
+        el.value = '';
+        updateWordCount(id, id === 'split-input-text' ? 'split-input-word-count' : `${id}-word-count`);
+      }
+    });
+    saveInputState();
+  }
+
+  // === ATTACH EVENTS (giữ nguyên) ===
+  function attachButtonEvents() {
+    // Match Case
+    document.getElementById('match-case')?.addEventListener('click', () => {
+      matchCaseEnabled = !matchCaseEnabled;
+      updateButtonStates();
+      saveSettings();
+    });
+
+    // Mode Select
+    document.getElementById('mode-select')?.addEventListener('change', (e) => {
+      currentMode = e.target.value;
+      loadSettings();
+      showNotification(translations[currentLang].switchedMode.replace('{mode}', currentMode), 'success');
+      updateModeButtons();
+    });
+
+    // Add Pair
+    document.getElementById('add-pair')?.addEventListener('click', () => addPair());
+
+    // Save Settings
+    document.getElementById('save-settings')?.addEventListener('click', saveSettings);
+
+    // Replace Button
+    document.getElementById('replace-button')?.addEventListener('click', () => {
+      const input = document.getElementById('input-text');
+      if (!input?.value) return showNotification(translations[currentLang].noTextToReplace, 'error');
+
+      const settings = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || { modes: {} };
+      const pairs = settings.modes[currentMode]?.pairs || [];
+      if (pairs.length === 0) return showNotification(translations[currentLang].noPairsConfigured, 'error');
+
+      const output = replaceText(input.value, pairs, matchCaseEnabled);
+      const outputEl = document.getElementById('output-text');
+      outputEl.value = output;
+      input.value = '';
+      updateWordCount('input-text', 'input-word-count');
+      updateWordCount('output-text', 'output-word-count');
+      showNotification(translations[currentLang].textReplaced, 'success');
+      saveInputState();
+    });
+
+    // Copy Button
+    document.getElementById('copy-button')?.addEventListener('click', () => {
+      const el = document.getElementById('output-text');
+      if (!el?.value) return showNotification(translations[currentLang].noTextToCopy, 'error');
+      navigator.clipboard.writeText(el.value).then(() => {
+        showNotification(translations[currentLang].textCopied, 'success');
+      }).catch(() => showNotification(translations[currentLang].failedToCopy, 'error'));
+    });
+
+    // Split Button
+    document.getElementById('split-button')?.addEventListener('click', () => {
+      const input = document.getElementById('split-input-text');
+      if (!input?.value) return showNotification(translations[currentLang].noTextToSplit, 'error');
+
+      const lines = input.value.split('\n');
+      const firstMatch = lines[0].match(/^[Cc]hương\s+(\d+)(?::\s*(.*))?$/m);
+      let chapterNum = 1, chapterTitle = '';
+      let startIdx = 0;
+      if (firstMatch) {
+        chapterNum = parseInt(firstMatch[1]);
+        chapterTitle = firstMatch[2] ? `: ${firstMatch[2]}` : '';
+        startIdx = 1;
+      }
+
+      const content = lines.slice(startIdx).join('\n');
+      const paragraphs = content.split('\n').filter(p => p.trim());
+      const totalWords = countWords(content);
+      const wordsPerPart = Math.floor(totalWords / currentSplitMode);
+
+      let parts = [], wordCount = 0, start = 0;
+      for (let i = 0; i < paragraphs.length; i++) {
+        wordCount += countWords(paragraphs[i]);
+        if (parts.length < currentSplitMode - 1 && wordCount >= wordsPerPart * (parts.length + 1)) {
+          parts.push(paragraphs.slice(start, i + 1).join('\n\n'));
+          start = i + 1;
+        }
+      }
+      parts.push(paragraphs.slice(start).join('\n\n'));
+
+      Array.from({ length: currentSplitMode }, (_, i) => i + 1).forEach(i => {
+        const el = document.getElementById(`output${i}-text`);
+        if (el) {
+          el.value = `Chương ${chapterNum}.${i}${chapterTitle}\n\n${parts[i - 1] || ''}`;
+          updateWordCount(`output${i}-text`, `output${i}-word-count`);
+        }
+      });
+
+      input.value = '';
+      updateWordCount('split-input-text', 'split-input-word-count');
+      showNotification(translations[currentLang].splitSuccess, 'success');
+      saveInputState();
+    });
+
+    // Copy Buttons 1-10
+    for (let i = 1; i <= 10; i++) {
+      document.getElementById(`copy-button${i}`)?.addEventListener('click', () => {
+        const el = document.getElementById(`output${i}-text`);
+        if (!el?.value) return showNotification(translations[currentLang].noTextToCopy, 'error');
+        navigator.clipboard.writeText(el.value).then(() => {
+          showNotification(translations[currentLang].textCopied, 'success');
+        });
+      });
+    }
+
+    // Split Mode Buttons
+    document.querySelectorAll('.split-mode-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        updateSplitModeUI(parseInt(btn.dataset.splitMode));
+      });
+    });
+
+    // Export / Import
+    document.getElementById('export-settings').onclick = exportSettings;
+    document.getElementById('import-settings').onclick = importSettings;
+
+    // Tab Buttons
+    document.querySelectorAll('.tab-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === btn.dataset.tab));
+        document.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('active', b === btn));
+      });
+    });
+
+    // Input listeners
+    ['input-text', 'split-input-text'].forEach(id => {
+      document.getElementById(id)?.addEventListener('input', () => {
+        updateWordCount(id, id === 'input-text' ? 'input-word-count' : 'split-input-word-count');
+        saveInputState();
+      });
+    });
+  }
+
+  // === UTILS ===
   function updateButtonStates() {
     const btn = document.getElementById('match-case');
     if (btn) {
@@ -313,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.toggle('active', matchCaseEnabled);
     }
   }
+
   function updateModeButtons() {
     const rename = document.getElementById('rename-mode');
     const del = document.getElementById('delete-mode');
@@ -322,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
       rename.style.display = del.style.display = 'none';
     }
   }
+
   function showNotification(msg, type = 'success') {
     const container = document.getElementById('notification-container');
     const n = document.createElement('div');
@@ -330,16 +454,17 @@ document.addEventListener('DOMContentLoaded', () => {
     container.appendChild(n);
     setTimeout(() => n.remove(), 3000);
   }
+
   function countWords(text) {
     return text.trim() ? text.split(/\s+/).filter(w => w).length : 0;
   }
+
   function updateWordCount(id, counterId) {
     const el = document.getElementById(id);
     const c = document.getElementById(counterId);
     if (el && c) c.textContent = translations.vn.wordCount.replace('{count}', countWords(el.value));
   }
 
-  // === INPUT STATE ===
   function saveInputState() {
     const state = {
       inputText: document.getElementById('input-text')?.value || '',
@@ -351,6 +476,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     localStorage.setItem(INPUT_STORAGE_KEY, JSON.stringify(state));
   }
+
   function restoreInputState() {
     const state = JSON.parse(localStorage.getItem(INPUT_STORAGE_KEY));
     if (!state) return;
@@ -361,7 +487,8 @@ document.addEventListener('DOMContentLoaded', () => {
       list.innerHTML = '';
       state.punctuationItems.reverse().forEach(p => addPair(p.find, p.replace));
     }
-    ['input-text', 'split-input-text'].forEach(id => updateWordCount(id, id.replace('text', 'word-count')));
+    updateWordCount('input-text', 'input-word-count');
+    updateWordCount('split-input-text', 'split-input-word-count');
   }
 
   // === INIT ===
@@ -371,16 +498,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSplitModeUI(2);
     attachButtonEvents();
     restoreInputState();
-
-    // Thay JSON → CSV
-    document.getElementById('export-settings').onclick = exportSettings;
-    document.getElementById('import-settings').onclick = importSettings;
   }
 
-  // === GỌI INIT ===
-  init();
+  function updateLanguage(lang) {
+    // (giữ nguyên như cũ, chỉ cần chạy 1 lần)
+    document.documentElement.lang = lang;
+    // ... (có thể bỏ qua nếu không cần thay đổi ngôn ngữ)
+  }
 
-  // === GỌI CÁC HÀM KHÁC (giữ nguyên attachButtonEvents, split, etc.) ===
-  // ... (giữ nguyên phần attachButtonEvents, split logic như cũ)
-  // (Bạn có thể giữ nguyên phần còn lại của file cũ từ `attachButtonEvents` trở xuống)
+  init();
 });
