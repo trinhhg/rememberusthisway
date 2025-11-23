@@ -129,7 +129,28 @@ body {
   padding: 10px 15px; background: #f9fafb; border-bottom: 1px solid #e5e7eb;
   display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px;
 }
+/* Style cho Textarea */
 .pane textarea { flex: 1; border: none; padding: 15px; resize: none; font-size: 14px; line-height: 1.6; font-family: inherit; }
+
+/* Style mới cho Output DIV (giả Textarea để hỗ trợ highlight) */
+.output-div {
+  flex: 1; border: none; padding: 15px; 
+  font-size: 14px; line-height: 1.6; font-family: inherit;
+  white-space: pre-wrap; /* Giữ định dạng xuống dòng */
+  overflow-y: auto;
+  background-color: #fff;
+  color: #374151;
+}
+/* Style cho phần Highlight */
+mark.hl-yellow {
+  background-color: #facc15;
+  color: black;
+  border-radius: 3px;
+  padding: 0 2px;
+  font-weight: 600;
+  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+}
+
 .pane-footer { padding: 10px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
 
 /* === SPLIT TAB === */
