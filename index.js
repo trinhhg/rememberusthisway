@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // === CONFIG & STATE ===
-  const STORAGE_KEY = 'trinh_hg_settings_v3';
-  const INPUT_STATE_KEY = 'trinh_hg_input_state_v3';
+  const STORAGE_KEY = 'trinh_hg_settings_v4';
+  const INPUT_STATE_KEY = 'trinh_hg_input_state_v4';
 
   const defaultState = {
     currentMode: 'default',
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     outputText: document.getElementById('output-text'),
     splitInput: document.getElementById('split-input-text'),
     splitWrapper: document.getElementById('split-outputs-wrapper'),
-    splitWorkspace: document.querySelector('.split-workspace'),
+    splitContainer: document.querySelector('.split-grid-container'),
     matchCaseBtn: document.getElementById('match-case'),
     wholeWordBtn: document.getElementById('whole-word'),
     renameBtn: document.getElementById('rename-mode'),
@@ -184,10 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderSplitOutputs(count) {
     els.splitWrapper.innerHTML = '';
     
+    // Gán Class để CSS xử lý layout
+    els.splitContainer.className = 'split-grid-container custom-scrollbar'; // Reset
     if (count === 2) {
-      els.splitWorkspace.className = 'split-workspace custom-scrollbar mode-2';
+      els.splitContainer.classList.add('mode-2');
+    } else if (count === 3) {
+      els.splitContainer.classList.add('mode-3');
     } else {
-      els.splitWorkspace.className = 'split-workspace custom-scrollbar mode-multi';
+      els.splitContainer.classList.add('mode-multi');
     }
 
     for(let i = 1; i <= count; i++) {
@@ -206,6 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
         els.splitWrapper.appendChild(div);
     }
     
+    // Attach copy events
     els.splitWrapper.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.target.dataset.target;
