@@ -13,7 +13,7 @@
       <h1>Tiện Ích Của Trịnh Hg</h1>
       <div class="contact-info">
         <span>Gia hạn: <a href="https://www.facebook.com/share/19eFDC5A4R/" target="_blank">Facebook</a></span>
-        <span class="price-tag">4k/ngày - 25k/tuần - 60k/tháng</span>
+        <span class="price-tag">4k/ngày - 25k/tuần</span>
       </div>
     </div>
     <div class="header-center">
@@ -50,17 +50,17 @@
             <button id="whole-word" class="btn btn-toggle">Whole Word: Tắt</button>
           </div>
           <div class="toolbar-group">
-            <button id="import-settings" class="btn btn-dark">Nhập Cài Đặt (CSV)</button>
-            <button id="export-settings" class="btn btn-dark">Xuất Cài Đặt</button>
+            <button id="import-settings" class="btn btn-secondary">Nhập Cài Đặt (CSV)</button>
+            <button id="export-settings" class="btn btn-secondary">Xuất Cài Đặt</button>
           </div>
         </div>
 
         <div class="list-actions">
-           <button id="add-pair" class="btn btn-success icon-btn">Thêm cặp mới</button>
-           <button id="save-settings" class="btn btn-primary icon-btn">Lưu tất cả</button>
+           <button id="add-pair" class="btn btn-primary icon-btn">Thêm cặp mới</button>
+           <button id="save-settings" class="btn btn-success icon-btn">Lưu tất cả</button>
         </div>
 
-        <div class="scroll-area custom-scrollbar">
+        <div class="scroll-area">
           <div id="punctuation-list">
             </div>
           <div id="empty-state" class="empty-message hidden">Chưa có cặp thay thế nào.</div>
@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <div id="replace" class="tab-content">
+    <div id="replace" class="tab-content fixed-height-tab">
       <div class="split-pane">
         <div class="pane input-pane">
           <div class="pane-header">
@@ -94,7 +94,7 @@
       </div>
     </div>
 
-    <div id="split" class="tab-content">
+    <div id="split" class="tab-content fixed-height-tab">
       <div class="split-controls">
         <label>Số phần chia:</label>
         <div class="split-buttons-group">
@@ -111,7 +111,6 @@
       </div>
 
       <div class="split-workspace custom-scrollbar">
-        
         <div id="split-input-container" class="split-box input-box">
           <div class="split-header">
             <span>Văn bản gốc</span>
@@ -124,7 +123,6 @@
         </div>
 
         <div id="split-outputs-wrapper" class="outputs-grid"></div>
-
       </div>
     </div>
 
