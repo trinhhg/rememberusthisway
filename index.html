@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tiện Ích Của Trịnh Hg</title>
+  <title>Tiện Ích Của Trịnh Hg - Pro Version</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="index.css">
 </head>
 <body>
@@ -13,17 +14,16 @@
       <h1>Tiện Ích Của Trịnh Hg</h1>
       <div class="contact-info">
         <span>Gia hạn: <a href="https://www.facebook.com/share/19eFDC5A4R/" target="_blank">Facebook</a></span>
-        <span class="price-tag">4k/ngày - 25k/tuần</span>
+        <span class="price-tag">4k/ngày - 25k/tuần - 60k/tháng</span>
       </div>
     </div>
-    <div class="header-center">
+    <div class="header-right">
       <nav class="tabs">
         <button class="tab-button active" data-tab="settings">Cài Đặt</button>
         <button class="tab-button" data-tab="replace">Thay Thế</button>
         <button class="tab-button" data-tab="split">Chia Chương</button>
       </nav>
     </div>
-    <div class="header-right"></div>
   </header>
 
   <main class="app-body">
@@ -50,17 +50,17 @@
             <button id="whole-word" class="btn btn-toggle">Whole Word: Tắt</button>
           </div>
           <div class="toolbar-group">
-            <button id="import-settings" class="btn btn-secondary">Nhập Cài Đặt (CSV)</button>
-            <button id="export-settings" class="btn btn-secondary">Xuất Cài Đặt</button>
+            <button id="import-settings" class="btn btn-outline">Nhập Cài Đặt (CSV)</button>
+            <button id="export-settings" class="btn btn-outline">Xuất Cài Đặt</button>
           </div>
         </div>
 
         <div class="list-actions">
-           <button id="add-pair" class="btn btn-primary icon-btn">Thêm cặp mới</button>
-           <button id="save-settings" class="btn btn-success icon-btn">Lưu tất cả</button>
+           <button id="add-pair" class="btn btn-success icon-btn">Thêm cặp mới</button>
+           <button id="save-settings" class="btn btn-primary icon-btn">Lưu tất cả</button>
         </div>
 
-        <div class="scroll-area">
+        <div class="scroll-area custom-scrollbar">
           <div id="punctuation-list">
             </div>
           <div id="empty-state" class="empty-message hidden">Chưa có cặp thay thế nào.</div>
@@ -68,7 +68,7 @@
       </div>
     </div>
 
-    <div id="replace" class="tab-content fixed-height-tab">
+    <div id="replace" class="tab-content">
       <div class="split-pane">
         <div class="pane input-pane">
           <div class="pane-header">
@@ -94,7 +94,7 @@
       </div>
     </div>
 
-    <div id="split" class="tab-content fixed-height-tab">
+    <div id="split" class="tab-content">
       <div class="split-controls">
         <label>Số phần chia:</label>
         <div class="split-buttons-group">
@@ -110,7 +110,8 @@
         </div>
       </div>
 
-      <div class="split-workspace custom-scrollbar">
+      <div class="split-grid-container custom-scrollbar">
+        
         <div id="split-input-container" class="split-box input-box">
           <div class="split-header">
             <span>Văn bản gốc</span>
@@ -118,11 +119,11 @@
           </div>
           <textarea id="split-input-text" class="custom-scrollbar" placeholder="Dán chương truyện vào đây..."></textarea>
           <div class="split-footer">
-             <button id="split-action-btn" class="btn btn-primary full-width">Chia Chương Ngay</button>
+            <button id="split-action-btn" class="btn btn-primary full-width">Chia Chương Ngay</button>
           </div>
         </div>
 
-        <div id="split-outputs-wrapper" class="outputs-grid"></div>
+        <div id="split-outputs-wrapper" class="outputs-wrapper"></div>
       </div>
     </div>
 
