@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   // === CONFIG & STATE ===
-  const STORAGE_KEY = 'trinh_hg_settings_v4';
-  const INPUT_STATE_KEY = 'trinh_hg_input_state_v4';
+  const STORAGE_KEY = 'trinh_hg_settings_v5';
+  const INPUT_STATE_KEY = 'trinh_hg_input_state_v5';
 
   const defaultState = {
     currentMode: 'default',
@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
     outputText: document.getElementById('output-text'),
     splitInput: document.getElementById('split-input-text'),
     splitWrapper: document.getElementById('split-outputs-wrapper'),
-    splitContainer: document.querySelector('.split-grid-container'),
     matchCaseBtn: document.getElementById('match-case'),
     wholeWordBtn: document.getElementById('whole-word'),
     renameBtn: document.getElementById('rename-mode'),
@@ -35,6 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
+  // type: 'success' | 'error' | 'info'
   function showNotification(msg, type = 'success') {
     const container = document.getElementById('notification-container');
     const note = document.createElement('div');
@@ -180,20 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotification('Đã lưu cài đặt!', 'success');
   }
 
-  // === SPLIT CHAPTER LOGIC ===
+  // === SPLIT CHAPTER LOGIC (Render dynamic Outputs) ===
   function renderSplitOutputs(count) {
     els.splitWrapper.innerHTML = '';
     
-    // Gán Class để CSS xử lý layout
-    els.splitContainer.className = 'split-grid-container custom-scrollbar'; // Reset
-    if (count === 2) {
-      els.splitContainer.classList.add('mode-2');
-    } else if (count === 3) {
-      els.splitContainer.classList.add('mode-3');
-    } else {
-      els.splitContainer.classList.add('mode-multi');
-    }
-
+    // Grid CSS handles the layout automatically (4 items per row)
+    // Input box is the 1st item (static in HTML), outputs follow.
+    
     for(let i = 1; i <= count; i++) {
         const div = document.createElement('div');
         div.className = 'split-box';
@@ -419,7 +412,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = performReplace(els.inputText.value);
         els.outputText.value = result.text;
         updateCounters();
-        showNotification(`Đã thay thế ${result.count} vị trí!`, 'success');
+        // Dùng type 'info' để hiện màu Tím
+        showNotification(`Đã thay thế ${result.count} vị trí!`, 'info');
     };
 
     document.getElementById('copy-button').onclick = () => {
