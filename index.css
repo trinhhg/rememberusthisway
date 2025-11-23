@@ -3,12 +3,14 @@
 body {
   font-family: 'Montserrat', sans-serif;
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
   background-color: #f3f4f6;
   color: #374151;
-  overflow: hidden; /* Giữ layout kiểu App, không cuộn body */
+  /* Scroll trang tự nhiên */
+  overflow-y: auto; 
+  overflow-x: hidden;
 }
 
 /* === SCROLLBAR === */
@@ -17,7 +19,7 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-/* === HEADER === */
+/* === HEADER (Sticky Top) === */
 .app-header {
   background: white;
   border-bottom: 1px solid #e5e7eb;
@@ -26,9 +28,20 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-shrink: 0;
-  z-index: 10;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.header-left, .header-right { 
+  flex: 1; /* 2 bên cân bằng để đẩy center ra giữa */
+}
+.header-center { 
+  flex: 2; 
+  display: flex; 
+  justify-content: center; /* Căn giữa tuyệt đối */
+  height: 100%; 
 }
 
 .header-left h1 { margin: 0; font-size: 18px; color: #111827; }
@@ -41,7 +54,7 @@ body {
 .tab-button {
   border: none;
   background: transparent;
-  padding: 0 20px;
+  padding: 0 25px;
   height: 45px;
   cursor: pointer;
   font-weight: 600;
@@ -57,19 +70,15 @@ body {
 /* === MAIN CONTENT === */
 .app-body {
   flex: 1;
-  position: relative;
-  overflow: hidden;
   padding: 15px;
-}
-
-.tab-content {
-  display: none;
-  height: 100%;
+  display: flex;
   flex-direction: column;
 }
-.tab-content.active { display: flex; }
 
-/* === BUTTONS & INPUTS === */
+.tab-content { display: none; width: 100%; }
+.tab-content.active { display: flex; flex-direction: column; }
+
+/* === BUTTONS & BADGES === */
 .btn {
   padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
   font-size: 12px; font-weight: 600; transition: all 0.2s;
@@ -88,13 +97,23 @@ body {
 .btn-warning:hover { background: #d97706; }
 .btn-outline { background: white; border: 1px solid #d1d5db; color: #374151; }
 .btn-outline:hover { border-color: #9ca3af; background: #f9fafb; }
-
 .btn-toggle { background: #e5e7eb; color: #6b7280; width: 150px; justify-content: flex-start; }
 .btn-toggle.active { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
 .hidden { display: none !important; }
 .full-width { width: 100%; }
 .icon-btn { min-width: 100px; }
+
+/* Badge Xanh Ngọc Nổi Bật */
+.badge { 
+  background: #1abc9c; /* Xanh ngọc đậm */
+  color: white;
+  padding: 3px 10px; 
+  border-radius: 12px; 
+  font-size: 11px; 
+  font-weight: 600; 
+  box-shadow: 0 2px 4px rgba(26, 188, 156, 0.3);
+}
 
 /* === SETTINGS TAB === */
 .panel-container {
@@ -103,10 +122,11 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex;
   flex-direction: column;
-  height: 100%;
   max-width: 1000px;
   margin: 0 auto;
   width: 100%;
+  /* Bỏ height 100% để cuộn theo body */
+  height: auto; 
 }
 .panel-header {
   padding: 15px 20px;
@@ -131,7 +151,13 @@ body {
 
 .list-actions { padding: 10px 20px; display: flex; gap: 10px; }
 
-.scroll-area { flex: 1; overflow-y: auto; padding: 10px 20px; background: #f9fafb; }
+/* Bỏ overflow-y để cuộn body */
+.scroll-area { 
+  padding: 10px 20px; 
+  background: #f9fafb; 
+  overflow: visible;
+}
+
 .punctuation-item {
   display: flex; gap: 10px; margin-bottom: 8px; align-items: center;
   background: white; padding: 8px; border-radius: 6px; border: 1px solid #e5e7eb;
@@ -147,7 +173,9 @@ body {
 
 /* === REPLACE TAB === */
 .split-pane {
-  display: flex; gap: 15px; height: 100%;
+  display: flex; gap: 15px; 
+  /* Tab này cần cố định chiều cao để textarea to */
+  height: calc(100vh - 90px); 
 }
 .pane {
   flex: 1; display: flex; flex-direction: column;
@@ -159,13 +187,12 @@ body {
   display: flex; justify-content: space-between; align-items: center;
   font-weight: 600; font-size: 13px;
 }
-.badge { background: #e5e7eb; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: normal; border: 1px solid #d1d5db;}
 .pane textarea {
   flex: 1; border: none; padding: 15px; resize: none; font-size: 14px; line-height: 1.6; font-family: inherit;
 }
 .pane-footer { padding: 10px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
 
-/* === SPLIT TAB (Dynamic Layout) === */
+/* === SPLIT TAB (CSS GRID - FIXED 4 COLS) === */
 .split-controls {
   background: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px;
   display: flex; align-items: center; gap: 15px;
@@ -178,71 +205,58 @@ body {
 }
 .split-mode-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
 
-/* Container chính */
+/* GRID CONTAINER */
 .split-grid-container {
-  flex: 1; overflow-y: auto;
-  display: flex; 
-  flex-wrap: wrap; /* Cho phép xuống dòng */
+  display: grid;
+  /* Luôn cố định 4 cột, tự động xuống dòng */
+  grid-template-columns: repeat(4, 1fr); 
   gap: 10px;
-  align-content: flex-start;
+  align-content: start;
+  /* Nếu nội dung quá dài thì cuộn body */
+  height: auto;
 }
-.outputs-wrapper { display: contents; } /* Để con nằm cùng cấp */
+
+/* display: contents giúp các ô con bên trong wrapper tham gia trực tiếp vào Grid cha */
+.outputs-wrapper { display: contents; }
 
 /* Style chung cho Box */
 .split-box {
   background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   display: flex; flex-direction: column; 
   border: 1px solid #e5e7eb;
-  min-height: 300px;
+  height: 300px; /* Chiều cao cố định mỗi ô */
+  /* Width tự động theo Grid */
 }
+
 .split-header { padding: 8px 12px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; }
 .split-box textarea { flex: 1; border: none; padding: 10px; resize: none; font-size: 13px; font-family: inherit; }
 .split-footer { padding: 8px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
 
-/* --- LOGIC LAYOUT --- */
-
-/* MODE 2 (1 hàng 3 ô: Input + Output1 + Output2) */
-.mode-2 .split-box {
-  width: calc(33.333% - 7px);
-  height: 100%; /* Full chiều cao màn hình */
-  margin-bottom: 0;
-}
-
-/* MODE 3 (1 hàng 4 ô: Input + Output1 + Output2 + Output3) */
-.mode-3 .split-box {
-  width: calc(25% - 8px);
-  height: 100%;
-  margin-bottom: 0;
-}
-
-/* MODE 4 trở lên (Input full hàng trên, Output chia cột ở dưới) */
-.mode-multi .split-box.input-box {
-  width: 100%;
-  height: 250px; /* Input ngắn lại chút */
-  margin-bottom: 5px;
-}
-
-.mode-multi .split-box:not(.input-box) {
-  /* Chia 3 cột cho các ô output */
-  width: calc(33.333% - 7px); 
-  height: 300px;
-}
-
-/* Responsive cho Mode Multi trên màn hình nhỏ */
+/* Responsive cho màn hình nhỏ hơn */
 @media (max-width: 1200px) {
-  .mode-multi .split-box:not(.input-box) { width: calc(50% - 5px); }
+  .split-grid-container { grid-template-columns: repeat(2, 1fr); } /* Xuống 2 cột */
+}
+@media (max-width: 768px) {
+  .split-grid-container { grid-template-columns: 1fr; } /* Xuống 1 cột */
 }
 
-/* === NOTIFICATION (Top Right) === */
+/* === NOTIFICATION === */
 #notification-container {
   position: fixed; top: 20px; right: 20px; z-index: 9999;
   display: flex; flex-direction: column; gap: 10px;
+  align-items: flex-end; /* Căn lề phải */
 }
 .notification {
   padding: 12px 20px; border-radius: 6px; color: white; font-size: 13px; font-weight: 600;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-width: 250px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
+  /* Fit content: Chỉ rộng bằng nội dung */
+  width: fit-content; 
+  min-width: 100px;
   animation: slideIn 0.3s ease-out;
 }
 .notification.success { background: #10b981; }
 .notification.error { background: #ef4444; }
+/* Màu Tím cho kết quả thay thế */
+.notification.info { background: #8e44ad; } 
+
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: 0; opacity: 1; } }
