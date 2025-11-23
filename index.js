@@ -75,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const replaceVal = rule.replace; 
 
         result = result.replace(regex, (match) => {
-          totalCount++; // Tăng biến đếm mỗi khi thay thế
+          totalCount++; 
           if (!mode.matchCase) {
              if (match === match.toUpperCase()) return replaceVal.toUpperCase();
              if (match === match.toLowerCase()) return replaceVal.toLowerCase();
@@ -91,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    // Format paragraphs: Cách nhau 1 dòng
     const formatted = result.split(/\n/).map(l => l.trim()).filter(l => l).join('\n\n');
     return { text: formatted, count: totalCount };
   }
@@ -128,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const item = document.createElement('div');
     item.className = 'punctuation-item';
     
-    // Xử lý quote để hiển thị đúng trong input value
     const safeFind = find.replace(/"/g, '&quot;');
     const safeReplace = replace.replace(/"/g, '&quot;');
 
@@ -186,7 +184,6 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderSplitOutputs(count) {
     els.splitWrapper.innerHTML = '';
     
-    // Cập nhật Class cho Workspace để CSS xử lý layout
     if (count === 2) {
       els.splitWorkspace.className = 'split-workspace custom-scrollbar mode-2';
     } else {
@@ -209,7 +206,6 @@ document.addEventListener('DOMContentLoaded', () => {
         els.splitWrapper.appendChild(div);
     }
     
-    // Attach copy events
     els.splitWrapper.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const id = e.target.dataset.target;
@@ -272,28 +268,22 @@ document.addEventListener('DOMContentLoaded', () => {
     showNotification('Đã chia thành công!', 'success');
   }
 
-  // === CSV IMPORT LOGIC (FIXED) ===
+  // === CSV IMPORT LOGIC ===
   function importCSV(file) {
     const reader = new FileReader();
     reader.onload = (e) => {
         const text = e.target.result;
         const lines = text.split(/\r?\n/);
         
-        // Kiểm tra header cơ bản
         if (!lines[0].includes('find,replace,mode')) {
-            return showNotification('File không đúng định dạng (thiếu header find,replace,mode)!', 'error');
+            return showNotification('File không đúng định dạng!', 'error');
         }
 
         let count = 0;
-        let errors = 0;
-
-        // Bỏ qua dòng đầu (header)
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
 
-            // Regex để bắt 3 nhóm trong dấu ngoặc kép: "group1","group2","group3"
-            // File của bạn: "find","replace","mode"
             const match = line.match(/^"(.*)","(.*)","(.*)"$/);
 
             if (match) {
@@ -307,14 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 state.modes[modeName].pairs.push({ find, replace });
                 count++;
-            } else {
-                // Thử parse kiểu không có quote (fallback)
-                const parts = line.split(',');
-                if(parts.length >= 3) {
-                     // Logic đơn giản cho fallback
-                } else {
-                    errors++;
-                }
             }
         }
 
@@ -325,14 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (count > 0) {
             showNotification(`Đã nhập thành công ${count} cặp từ!`, 'success');
         } else {
-            showNotification('Không đọc được dữ liệu nào hợp lệ!', 'error');
+            showNotification('Không có dữ liệu hợp lệ!', 'error');
         }
     };
-    reader.onerror = () => showNotification('Lỗi khi đọc file!', 'error');
     reader.readAsText(file);
   }
 
-  // === UTILS ===
+  // === UTILS & EVENTS ===
   function countWords(str) {
     return str.trim() ? str.trim().split(/\s+/).length : 0;
   }
@@ -364,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateCounters();
   }
 
-  // === EVENT LISTENERS SETUP ===
   function initEvents() {
     document.querySelectorAll('.tab-button').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -396,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
         state.modes[name] = { pairs: [], matchCase: false, wholeWord: false };
         state.currentMode = name;
         saveState(); renderModeSelect(); loadSettingsToUI();
-      } else if (state.modes[name]) alert('Tên đã tồn tại!');
+      }
     };
 
     document.getElementById('copy-mode').onclick = () => {
@@ -429,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-pair').onclick = () => addPairToUI('', '', false); 
     document.getElementById('save-settings').onclick = saveCurrentPairsToState;
 
-    // REPLACE BUTTON - Có đếm số lượng
     document.getElementById('replace-button').onclick = () => {
         saveCurrentPairsToState(); 
         const result = performReplace(els.inputText.value);
@@ -463,15 +442,12 @@ document.addEventListener('DOMContentLoaded', () => {
         a.click();
     };
 
-    // Nút Import được viết lại để gọi hàm importCSV
     document.getElementById('import-settings').onclick = () => {
         const input = document.createElement('input');
         input.type = 'file';
         input.accept = '.csv';
         input.onchange = e => {
-            if(e.target.files.length > 0) {
-                importCSV(e.target.files[0]);
-            }
+            if(e.target.files.length > 0) importCSV(e.target.files[0]);
         };
         input.click();
     };
