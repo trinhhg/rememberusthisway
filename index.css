@@ -8,7 +8,6 @@ body {
   flex-direction: column;
   background-color: #f3f4f6;
   color: #374151;
-  /* Scroll trang tự nhiên */
   overflow-y: auto; 
   overflow-x: hidden;
 }
@@ -34,15 +33,8 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-.header-left, .header-right { 
-  flex: 1; /* 2 bên cân bằng để đẩy center ra giữa */
-}
-.header-center { 
-  flex: 2; 
-  display: flex; 
-  justify-content: center; /* Căn giữa tuyệt đối */
-  height: 100%; 
-}
+.header-left, .header-right { flex: 1; }
+.header-center { flex: 2; display: flex; justify-content: center; height: 100%; }
 
 .header-left h1 { margin: 0; font-size: 18px; color: #111827; }
 .contact-info { font-size: 11px; color: #6b7280; margin-top: 2px; }
@@ -52,29 +44,16 @@ body {
 /* === TABS === */
 .tabs { display: flex; gap: 5px; height: 100%; align-items: flex-end; }
 .tab-button {
-  border: none;
-  background: transparent;
-  padding: 0 25px;
-  height: 45px;
-  cursor: pointer;
-  font-weight: 600;
-  color: #6b7280;
-  border-bottom: 3px solid transparent;
-  transition: all 0.2s;
-  font-size: 13px;
-  text-transform: uppercase;
+  border: none; background: transparent; padding: 0 25px; height: 45px;
+  cursor: pointer; font-weight: 600; color: #6b7280;
+  border-bottom: 3px solid transparent; transition: all 0.2s;
+  font-size: 13px; text-transform: uppercase;
 }
 .tab-button:hover { color: #2563eb; background: #f9fafb; }
 .tab-button.active { color: #2563eb; border-bottom-color: #2563eb; }
 
 /* === MAIN CONTENT === */
-.app-body {
-  flex: 1;
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-}
-
+.app-body { flex: 1; padding: 15px; display: flex; flex-direction: column; }
 .tab-content { display: none; width: 100%; }
 .tab-content.active { display: flex; flex-direction: column; }
 
@@ -104,67 +83,36 @@ body {
 .full-width { width: 100%; }
 .icon-btn { min-width: 100px; }
 
-/* Badge Xanh Ngọc Nổi Bật */
 .badge { 
-  background: #1abc9c; /* Xanh ngọc đậm */
-  color: white;
-  padding: 3px 10px; 
-  border-radius: 12px; 
-  font-size: 11px; 
-  font-weight: 600; 
+  background: #1abc9c; color: white; padding: 3px 10px; 
+  border-radius: 12px; font-size: 11px; font-weight: 600; 
   box-shadow: 0 2px 4px rgba(26, 188, 156, 0.3);
 }
 
 /* === SETTINGS TAB === */
 .panel-container {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  max-width: 1000px;
-  margin: 0 auto;
-  width: 100%;
-  /* Bỏ height 100% để cuộn theo body */
-  height: auto; 
+  background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  display: flex; flex-direction: column; max-width: 1000px; margin: 0 auto; width: 100%; height: auto; 
 }
 .panel-header {
-  padding: 15px 20px;
-  border-bottom: 1px solid #f3f4f6;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  padding: 15px 20px; border-bottom: 1px solid #f3f4f6;
+  display: flex; justify-content: space-between; align-items: center;
 }
 .panel-header h2 { margin: 0; font-size: 16px; color: #111827; }
 .mode-actions { display: flex; gap: 8px; align-items: center; }
 .select-wrapper { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-right: 10px; }
 #mode-select { padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; }
 
-.toolbar {
-  padding: 10px 20px;
-  background: #f9fafb;
-  border-bottom: 1px solid #f3f4f6;
-  display: flex;
-  justify-content: space-between;
-}
+.toolbar { padding: 10px 20px; background: #f9fafb; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; }
 .toolbar-group { display: flex; gap: 8px; }
-
 .list-actions { padding: 10px 20px; display: flex; gap: 10px; }
-
-/* Bỏ overflow-y để cuộn body */
-.scroll-area { 
-  padding: 10px 20px; 
-  background: #f9fafb; 
-  overflow: visible;
-}
+.scroll-area { padding: 10px 20px; background: #f9fafb; overflow: visible; }
 
 .punctuation-item {
   display: flex; gap: 10px; margin-bottom: 8px; align-items: center;
   background: white; padding: 8px; border-radius: 6px; border: 1px solid #e5e7eb;
 }
-.punctuation-item input {
-  flex: 1; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 13px;
-}
+.punctuation-item input { flex: 1; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 13px; }
 .punctuation-item input:focus { border-color: #2563eb; }
 .punctuation-item button.remove {
   width: 30px; height: 30px; border-radius: 4px; border: none; background: #fee2e2; color: #dc2626; cursor: pointer;
@@ -172,31 +120,22 @@ body {
 .punctuation-item button.remove:hover { background: #ef4444; color: white; }
 
 /* === REPLACE TAB === */
-.split-pane {
-  display: flex; gap: 15px; 
-  /* Tab này cần cố định chiều cao để textarea to */
-  height: calc(100vh - 90px); 
-}
+.split-pane { display: flex; gap: 15px; height: calc(100vh - 90px); }
 .pane {
   flex: 1; display: flex; flex-direction: column;
-  background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  overflow: hidden;
+  background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;
 }
 .pane-header {
   padding: 10px 15px; background: #f9fafb; border-bottom: 1px solid #e5e7eb;
-  display: flex; justify-content: space-between; align-items: center;
-  font-weight: 600; font-size: 13px;
+  display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px;
 }
-.pane textarea {
-  flex: 1; border: none; padding: 15px; resize: none; font-size: 14px; line-height: 1.6; font-family: inherit;
-}
+.pane textarea { flex: 1; border: none; padding: 15px; resize: none; font-size: 14px; line-height: 1.6; font-family: inherit; }
 .pane-footer { padding: 10px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
 
-/* === SPLIT TAB (CSS GRID - FIXED 4 COLS) === */
+/* === SPLIT TAB === */
 .split-controls {
   background: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 15px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 .split-buttons-group { display: flex; gap: 5px; flex-wrap: wrap; }
 .split-mode-btn {
@@ -205,58 +144,33 @@ body {
 }
 .split-mode-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
 
-/* GRID CONTAINER */
 .split-grid-container {
-  display: grid;
-  /* Luôn cố định 4 cột, tự động xuống dòng */
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 10px;
-  align-content: start;
-  /* Nếu nội dung quá dài thì cuộn body */
-  height: auto;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-content: start; height: auto;
 }
-
-/* display: contents giúp các ô con bên trong wrapper tham gia trực tiếp vào Grid cha */
 .outputs-wrapper { display: contents; }
-
-/* Style chung cho Box */
 .split-box {
   background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  display: flex; flex-direction: column; 
-  border: 1px solid #e5e7eb;
-  height: 300px; /* Chiều cao cố định mỗi ô */
-  /* Width tự động theo Grid */
+  display: flex; flex-direction: column; border: 1px solid #e5e7eb; height: 300px;
 }
-
 .split-header { padding: 8px 12px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; }
 .split-box textarea { flex: 1; border: none; padding: 10px; resize: none; font-size: 13px; font-family: inherit; }
 .split-footer { padding: 8px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
 
-/* Responsive cho màn hình nhỏ hơn */
-@media (max-width: 1200px) {
-  .split-grid-container { grid-template-columns: repeat(2, 1fr); } /* Xuống 2 cột */
-}
-@media (max-width: 768px) {
-  .split-grid-container { grid-template-columns: 1fr; } /* Xuống 1 cột */
-}
+@media (max-width: 1200px) { .split-grid-container { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px) { .split-grid-container { grid-template-columns: 1fr; } }
 
 /* === NOTIFICATION === */
 #notification-container {
   position: fixed; top: 20px; right: 20px; z-index: 9999;
-  display: flex; flex-direction: column; gap: 10px;
-  align-items: flex-end; /* Căn lề phải */
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
 }
 .notification {
   padding: 12px 20px; border-radius: 6px; color: white; font-size: 13px; font-weight: 600;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15); 
-  /* Fit content: Chỉ rộng bằng nội dung */
-  width: fit-content; 
-  min-width: 100px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); width: fit-content; min-width: 100px;
   animation: slideIn 0.3s ease-out;
 }
 .notification.success { background: #10b981; }
 .notification.error { background: #ef4444; }
-/* Màu Tím cho kết quả thay thế */
 .notification.info { background: #8e44ad; } 
 
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: 0; opacity: 1; } }
