@@ -142,23 +142,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Escape HTML text gốc trước khi xử lý highlight để tránh lỗi XSS
     let safeText = escapeHtml(plainText);
-
-    // Tạo Regex tổng hợp để tìm tất cả các từ cần highlight
-    // Lưu ý: Highlight kết quả chỉ cần tìm string chính xác, không cần quá khắt khe whole word
-    // Tuy nhiên nếu muốn chuẩn thì có thể bật whole word. Ở đây để đơn giản ta tìm string.
     
     replaceTerms.forEach(term => {
         // Escape term để dùng trong regex
         const safeTerm = escapeRegExp(escapeHtml(term));
-        // Tạo regex tìm từ này trong chuỗi HTML đã escape
-        // Cần flag 'g'
         const regex = new RegExp(`(${safeTerm})`, 'g');
         // Wrap bằng thẻ mark
         safeText = safeText.replace(regex, '<mark class="hl-yellow">$1</mark>');
     });
 
-    // Chuyển đổi ký tự xuống dòng thành <br> hoặc giữ nguyên vì dùng white-space: pre-wrap
-    // Với white-space: pre-wrap, ta giữ nguyên \n
     els.outputText.innerHTML = safeText;
   }
 
@@ -322,9 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // === CSV EXPORT & IMPORT (FIXED BOM) ===
   function exportCSV() {
-    // Thêm BOM (\uFEFF) để Excel nhận diện đúng tiếng Việt UTF-8
     let csvContent = "\uFEFFfind,replace,mode\n"; 
-    
     Object.keys(state.modes).forEach(modeName => {
         const mode = state.modes[modeName];
         if (mode.pairs && mode.pairs.length > 0) {
@@ -335,7 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
-
     const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -349,23 +338,18 @@ document.addEventListener('DOMContentLoaded', () => {
     reader.onload = (e) => {
         let text = e.target.result;
         const lines = text.split(/\r?\n/);
-        
-        // Kiểm tra header (có thể dính BOM ở đầu nên dùng includes)
         if (!lines[0].toLowerCase().includes('find,replace,mode')) {
             return showNotification('File không đúng định dạng!', 'error');
         }
-
         let count = 0;
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
-            // Parse CSV đơn giản
             const match = line.match(/^"(.*)","(.*)","(.*)"$/);
             if (match) {
                 const find = match[1].replace(/""/g, '"');
                 const replace = match[2].replace(/""/g, '"');
                 const modeName = match[3];
-
                 if (!state.modes[modeName]) {
                     state.modes[modeName] = { pairs: [], matchCase: false, wholeWord: false };
                 }
@@ -389,6 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   function updateCounters() {
     document.getElementById('input-word-count').textContent = 'Words: ' + countWords(els.inputText.value);
+    // innerText để lấy nội dung trong div
     document.getElementById('output-word-count').textContent = 'Words: ' + countWords(els.outputText.innerText);
     document.getElementById('split-input-word-count').textContent = 'Words: ' + countWords(els.splitInput.value);
   }
