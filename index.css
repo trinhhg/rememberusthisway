@@ -140,7 +140,15 @@ body {
   overflow-y: auto;
   background-color: #fff;
   color: #374151;
+  user-select: text; /* Cho phép copy */
 }
+
+/* Kỹ thuật để hiện placeholder cho div khi trống */
+.output-div:empty::before {
+  content: attr(placeholder);
+  color: #9ca3af;
+}
+
 /* Style cho phần Highlight */
 mark.hl-yellow {
   background-color: #facc15;
