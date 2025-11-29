@@ -8,22 +8,21 @@ body {
   flex-direction: column;
   background-color: #f3f4f6;
   color: #374151;
-  overflow-y: auto; 
-  overflow-x: hidden;
+  /* Bỏ overflow-hidden để tránh lỗi mất scroll trên màn hình nhỏ */
 }
 
 /* === SCROLLBAR === */
-.custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
 
-/* === HEADER (Sticky Top) === */
+/* === HEADER === */
 .app-header {
   background: white;
   border-bottom: 1px solid #e5e7eb;
   padding: 0 20px;
-  height: 60px;
+  height: auto; min-height: 60px; /* Cho phép giãn nếu donation dài */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -34,17 +33,34 @@ body {
 }
 
 .header-left, .header-right { flex: 1; }
-.header-center { flex: 2; display: flex; justify-content: center; height: 100%; }
+.header-center { flex: 2; display: flex; justify-content: center; height: 100%; align-items: flex-end; }
 
-.header-left h1 { margin: 0; font-size: 18px; color: #111827; }
-.contact-info { font-size: 11px; color: #6b7280; margin-top: 2px; }
-.contact-info a { color: #2563eb; text-decoration: none; font-weight: 600; }
-.price-tag { margin-left: 10px; color: #059669; font-weight: 500; }
+.header-left h1 { margin: 0; font-size: 18px; color: #111827; padding-top: 5px; }
+
+/* --- DONATION STYLE --- */
+.donation-box {
+    display: inline-block;
+    background: linear-gradient(90deg, #fff1f2, #fce7f3);
+    border: 1px solid #fecdd3;
+    color: #be123c;
+    font-weight: 700;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    margin: 5px 0;
+    box-shadow: 0 2px 4px rgba(244, 63, 94, 0.2);
+    animation: pulse-border 2s infinite;
+}
+@keyframes pulse-border {
+    0% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.4); }
+    70% { box-shadow: 0 0 0 5px rgba(244, 63, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0); }
+}
 
 /* === TABS === */
-.tabs { display: flex; gap: 5px; height: 100%; align-items: flex-end; }
+.tabs { display: flex; gap: 5px; height: 50px; }
 .tab-button {
-  border: none; background: transparent; padding: 0 25px; height: 45px;
+  border: none; background: transparent; padding: 0 20px; height: 100%;
   cursor: pointer; font-weight: 600; color: #6b7280;
   border-bottom: 3px solid transparent; transition: all 0.2s;
   font-size: 13px; text-transform: uppercase;
@@ -53,11 +69,11 @@ body {
 .tab-button.active { color: #2563eb; border-bottom-color: #2563eb; }
 
 /* === MAIN CONTENT === */
-.app-body { flex: 1; padding: 15px; display: flex; flex-direction: column; }
-.tab-content { display: none; width: 100%; }
-.tab-content.active { display: flex; flex-direction: column; }
+.app-body { flex: 1; padding: 15px; display: flex; flex-direction: column; height: calc(100vh - 70px); }
+.tab-content { display: none; width: 100%; height: 100%; flex-direction: column; }
+.tab-content.active { display: flex; }
 
-/* === BUTTONS & BADGES === */
+/* === BUTTONS & UI === */
 .btn {
   padding: 8px 16px; border-radius: 6px; border: none; cursor: pointer;
   font-size: 12px; font-weight: 600; transition: all 0.2s;
@@ -67,60 +83,51 @@ body {
 .btn-primary { background: #2563eb; color: white; }
 .btn-primary:hover { background: #1d4ed8; }
 .btn-success { background: #10b981; color: white; }
-.btn-success:hover { background: #059669; }
 .btn-secondary { background: #e5e7eb; color: #374151; }
-.btn-secondary:hover { background: #d1d5db; }
 .btn-danger { background: #ef4444; color: white; }
-.btn-danger:hover { background: #dc2626; }
 .btn-warning { background: #f59e0b; color: white; }
-.btn-warning:hover { background: #d97706; }
 .btn-outline { background: white; border: 1px solid #d1d5db; color: #374151; }
-.btn-outline:hover { border-color: #9ca3af; background: #f9fafb; }
 .btn-toggle { background: #e5e7eb; color: #6b7280; width: 150px; justify-content: flex-start; }
 .btn-toggle.active { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
 
 .hidden { display: none !important; }
 .full-width { width: 100%; }
 .icon-btn { min-width: 100px; }
-
-.badge { 
-  background: #1abc9c; color: white; padding: 3px 10px; 
-  border-radius: 12px; font-size: 11px; font-weight: 600; 
-  box-shadow: 0 2px 4px rgba(26, 188, 156, 0.3);
-}
+.badge { background: #1abc9c; color: white; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; }
 
 /* === SETTINGS TAB === */
 .panel-container {
   background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  display: flex; flex-direction: column; max-width: 1000px; margin: 0 auto; width: 100%; height: auto; 
+  display: flex; flex-direction: column; max-width: 1000px; margin: 0 auto; width: 100%; height: 100%; 
+  overflow: hidden; /* Giữ scroll bên trong list */
 }
-.panel-header {
-  padding: 15px 20px; border-bottom: 1px solid #f3f4f6;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.panel-header h2 { margin: 0; font-size: 16px; color: #111827; }
+.panel-header, .toolbar, .list-actions { padding: 10px 20px; border-bottom: 1px solid #f3f4f6; flex-shrink: 0; }
+.panel-header { display: flex; justify-content: space-between; align-items: center; }
+.panel-header h2 { margin: 0; font-size: 16px; }
 .mode-actions { display: flex; gap: 8px; align-items: center; }
-.select-wrapper { display: flex; align-items: center; gap: 8px; font-size: 13px; margin-right: 10px; }
-#mode-select { padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 13px; }
-
-.toolbar { padding: 10px 20px; background: #f9fafb; border-bottom: 1px solid #f3f4f6; display: flex; justify-content: space-between; }
+.toolbar { background: #f9fafb; display: flex; justify-content: space-between; }
 .toolbar-group { display: flex; gap: 8px; }
-.list-actions { padding: 10px 20px; display: flex; gap: 10px; }
-.scroll-area { padding: 10px 20px; background: #f9fafb; overflow: visible; }
+.list-actions { display: flex; gap: 10px; }
+
+.scroll-area { padding: 10px 20px; background: #f9fafb; overflow-y: auto; flex: 1; }
 
 .punctuation-item {
   display: flex; gap: 10px; margin-bottom: 8px; align-items: center;
   background: white; padding: 8px; border-radius: 6px; border: 1px solid #e5e7eb;
 }
-.punctuation-item input { flex: 1; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 13px; }
+/* QUAN TRỌNG: Font Monospace để nhìn rõ ký tự đặc biệt */
+.punctuation-item input { 
+    flex: 1; padding: 8px 12px; border: 1px solid #e5e7eb; border-radius: 4px; font-size: 14px;
+    font-family: 'Courier New', Courier, monospace; 
+    color: #111;
+}
 .punctuation-item input:focus { border-color: #2563eb; }
 .punctuation-item button.remove {
   width: 30px; height: 30px; border-radius: 4px; border: none; background: #fee2e2; color: #dc2626; cursor: pointer;
 }
-.punctuation-item button.remove:hover { background: #ef4444; color: white; }
 
 /* === REPLACE TAB === */
-.split-pane { display: flex; gap: 15px; height: calc(100vh - 90px); }
+.split-pane { display: flex; gap: 15px; height: 100%; padding-bottom: 5px; }
 .pane {
   flex: 1; display: flex; flex-direction: column;
   background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden;
@@ -129,42 +136,31 @@ body {
   padding: 10px 15px; background: #f9fafb; border-bottom: 1px solid #e5e7eb;
   display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 13px;
 }
-/* Style cho Textarea */
-.pane textarea { flex: 1; border: none; padding: 15px; resize: none; font-size: 14px; line-height: 1.6; font-family: inherit; }
-
-/* Style mới cho Output DIV (giả Textarea để hỗ trợ highlight) */
-.output-div {
-  flex: 1; border: none; padding: 15px; 
-  font-size: 14px; line-height: 1.6; font-family: inherit;
-  white-space: pre-wrap; /* Giữ định dạng xuống dòng */
-  overflow-y: auto;
-  background-color: #fff;
-  color: #374151;
-  user-select: text; /* Cho phép copy */
+/* Style chung cho textarea và div output để giống nhau */
+.pane textarea, .output-div { 
+    flex: 1; border: none; padding: 15px; resize: none; 
+    font-size: 14px; line-height: 1.6; font-family: 'Montserrat', sans-serif;
+    outline: none; overflow-y: auto; display: block; width: 100%;
 }
-
-/* Kỹ thuật để hiện placeholder cho div khi trống */
-.output-div:empty::before {
-  content: attr(placeholder);
-  color: #9ca3af;
+.output-div { 
+    background-color: #fff; color: #374151; white-space: pre-wrap; word-wrap: break-word;
+    user-select: text; /* Cho phép bôi đen copy */
 }
+.output-div:empty::before { content: attr(placeholder); color: #9ca3af; }
 
-/* Style cho phần Highlight */
-mark.hl-yellow {
-  background-color: #facc15;
-  color: black;
-  border-radius: 3px;
-  padding: 0 2px;
-  font-weight: 600;
-  box-shadow: 0 0 2px rgba(0,0,0,0.2);
+/* Highlight Style */
+.replaced {
+    background-color: #fde047; color: black;
+    border-radius: 3px; padding: 0 2px;
+    border-bottom: 2px solid #ca8a04;
+    font-weight: 600;
 }
-
-.pane-footer { padding: 10px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
+.pane-footer { padding: 10px; border-top: 1px solid #e5e7eb; background: #f9fafb; flex-shrink: 0; }
 
 /* === SPLIT TAB === */
 .split-controls {
   background: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 10px;
-  display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+  display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); flex-shrink: 0;
 }
 .split-buttons-group { display: flex; gap: 5px; flex-wrap: wrap; }
 .split-mode-btn {
@@ -174,12 +170,12 @@ mark.hl-yellow {
 .split-mode-btn.active { background: #2563eb; color: white; border-color: #2563eb; }
 
 .split-grid-container {
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-content: start; height: auto;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; 
+  align-content: start; height: 100%; overflow-y: auto; padding-bottom: 20px;
 }
-.outputs-wrapper { display: contents; }
 .split-box {
   background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  display: flex; flex-direction: column; border: 1px solid #e5e7eb; height: 300px;
+  display: flex; flex-direction: column; border: 1px solid #e5e7eb; height: 350px; /* Fix chiều cao cố định */
 }
 .split-header { padding: 8px 12px; background: #f9fafb; border-bottom: 1px solid #e5e7eb; font-size: 12px; font-weight: 600; display: flex; justify-content: space-between; }
 .split-box textarea { flex: 1; border: none; padding: 10px; resize: none; font-size: 13px; font-family: inherit; }
@@ -191,15 +187,13 @@ mark.hl-yellow {
 /* === NOTIFICATION === */
 #notification-container {
   position: fixed; top: 20px; right: 20px; z-index: 9999;
-  display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-end; pointer-events: none;
 }
 .notification {
   padding: 12px 20px; border-radius: 6px; color: white; font-size: 13px; font-weight: 600;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15); width: fit-content; min-width: 100px;
-  animation: slideIn 0.3s ease-out;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15); animation: slideIn 0.3s ease-out;
 }
 .notification.success { background: #10b981; }
 .notification.error { background: #ef4444; }
 .notification.info { background: #8e44ad; } 
-
 @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: 0; opacity: 1; } }
